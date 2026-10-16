@@ -9,3 +9,21 @@
 *.pem
 *.key
 credentials
+
+# Terraform local files and sensitive state
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfvars
+*.tfvars.json
+*.plan
+destroy-plan
+eks-plan
+workers-plan
+crash.log
+crash.*.log
+
+# Local secrets
+.env
+.env.*
+!.env.example

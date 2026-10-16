@@ -82,6 +82,28 @@ pipeline {
                 '''
             }
         }
+
+	stage('Deploy to EKS') {
+            steps {
+                sh '''
+                    AWS_ACCOUNT_ID=$(aws sts get-caller-identity \
+                        --query Account \
+                        --output text)
+
+                    IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}
+
+                    kubectl set image \
+                        deployment/devops-capstone-app \
+                        web=${IMAGE_URI} \
+                        --namespace default
+
+                    kubectl rollout status \
+                        deployment/devops-capstone-app \
+                        --namespace default \
+                        --timeout=180s
+                '''
+            }
+        }
     }
 
     post {
@@ -93,4 +115,6 @@ pipeline {
             echo 'CI pipeline failed. Check the Jenkins console output.'
         }
     }
+
+
 }
