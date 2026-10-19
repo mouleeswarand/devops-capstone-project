@@ -1,0 +1,56 @@
+
+---
+- name: Configure and verify Jenkins EC2 server
+  hosts: jenkins
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Ensure required packages are installed
+      ansible.builtin.apt:
+        name:
+          - openjdk-21-jre
+          - docker.io
+          - ansible
+          - curl
+          - unzip
+        state: present
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Ensure Jenkins is enabled and running
+      ansible.builtin.systemd:
+        name: jenkins
+        enabled: true
+        state: started
+
+    - name: Ensure Docker is enabled and running
+      ansible.builtin.systemd:
+        name: docker
+        enabled: true
+        state: started
+
+    - name: Add Jenkins user to Docker group
+      ansible.builtin.user:
+        name: jenkins
+        groups: docker
+        append: true
+      notify: Restart Jenkins
+
+    - name: Verify Jenkins service
+      ansible.builtin.command: systemctl is-active jenkins
+      changed_when: false
+
+    - name: Verify Docker service
+      ansible.builtin.command: systemctl is-active docker
+      changed_when: false
+
+    - name: Display successful configuration
+      ansible.builtin.debug:
+        msg: "Jenkins and Docker are enabled and running."
+
+  handlers:
+    - name: Restart Jenkins
+      ansible.builtin.systemd:
+        name: jenkins
+        state: restarted

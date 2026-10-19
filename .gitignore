@@ -27,3 +27,11 @@ crash.*.log
 .env
 .env.*
 !.env.example
+
+
+# Local Ansible inventory
+ansible/inventory.ini
+
+# Terraform generated plan files
+*.tfplan
+/terraform/jenkins-plan

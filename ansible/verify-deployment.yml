@@ -1,0 +1,40 @@
+---
+- name: Verify DevOps capstone deployment on EKS
+  hosts: local
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Check Kubernetes cluster connectivity
+      ansible.builtin.command:
+        cmd: kubectl cluster-info
+      changed_when: false
+
+    - name: Check application deployment rollout
+      ansible.builtin.command:
+        cmd: kubectl rollout status deployment/devops-capstone-app --namespace default --timeout=120s
+      changed_when: false
+
+    - name: Read application deployment status
+      ansible.builtin.command:
+        cmd: kubectl get deployment devops-capstone-app --namespace default -o json
+      register: deployment_result
+      changed_when: false
+
+    - name: Verify all desired replicas are available
+      ansible.builtin.assert:
+        that:
+          - (deployment_result.stdout | from_json).status.readyReplicas | default(0) | int == (deployment_result.stdout | from_json).spec.replicas | int
+          - (deployment_result.stdout | from_json).status.availableReplicas | default(0) | int == (deployment_result.stdout | from_json).spec.replicas | int
+        fail_msg: "Application deployment is not fully available."
+        success_msg: "Application deployment is healthy: all desired replicas are available."
+
+    - name: Read Horizontal Pod Autoscaler status
+      ansible.builtin.command:
+        cmd: kubectl get hpa devops-capstone-app --namespace default
+      register: hpa_result
+      changed_when: false
+
+    - name: Display HPA status
+      ansible.builtin.debug:
+        var: hpa_result.stdout
