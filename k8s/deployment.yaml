@@ -20,6 +20,13 @@ spec:
           image: 625228299204.dkr.ecr.us-east-1.amazonaws.com/devops-capstone-app:6
           ports:
             - containerPort: 3000
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "64Mi"
+            limits:
+              cpu: "500m"
+              memory: "256Mi"
           readinessProbe:
             httpGet:
               path: /health

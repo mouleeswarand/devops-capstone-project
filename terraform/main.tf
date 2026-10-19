@@ -136,8 +136,8 @@ resource "aws_eks_cluster" "main" {
     endpoint_private_access = true
     endpoint_public_access  = true
     public_access_cidrs = [
-      "157.51.88.214/32", # Your workstation
-      "98.92.87.206/32"   # Jenkins EC2
+      "157.51.88.214/32",  # Your workstation
+      "184.195.184.165/32" # Jenkins EC2
     ]
 
   }
@@ -160,7 +160,7 @@ resource "aws_eks_node_group" "main" {
   node_role_arn   = "arn:aws:iam::625228299204:role/devops-capstone-eks-node-role"
   subnet_ids      = aws_subnet.private[*].id
 
-  instance_types = ["t3.small"]
+  instance_types = ["m7i-flex.large"]
   capacity_type  = "ON_DEMAND"
 
   scaling_config {
