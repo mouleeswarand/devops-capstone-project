@@ -1,0 +1,8 @@
+NAMESPACE     NAME                                  READY   UP-TO-DATE   AVAILABLE   AGE
+default       devops-capstone-app                   2/2     2            2           5h49m
+kube-system   aws-load-balancer-controller          2/2     2            2           44m
+kube-system   coredns                               2/2     2            2           6h20m
+kube-system   metrics-server                        1/1     1            1           5h39m
+monitoring    monitoring-grafana                    1/1     1            1           5h29m
+monitoring    monitoring-kube-prometheus-operator   1/1     1            1           5h29m
+monitoring    monitoring-kube-state-metrics         1/1     1            1           5h29m

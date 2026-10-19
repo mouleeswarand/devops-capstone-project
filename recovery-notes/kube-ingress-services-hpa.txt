@@ -1,0 +1,25 @@
+NAMESPACE   NAME                                                CLASS   HOSTS   ADDRESS                                                                  PORTS   AGE
+default     ingress.networking.k8s.io/devops-capstone-ingress   alb     *       k8s-default-devopsca-480b971c80-1551533814.us-east-1.elb.amazonaws.com   80      41m
+
+NAMESPACE     NAME                                                         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                        AGE
+default       service/devops-capstone-app                                  ClusterIP   172.20.43.54     <none>        80/TCP                         5h48m
+default       service/kubernetes                                           ClusterIP   172.20.0.1       <none>        443/TCP                        6h22m
+kube-system   service/aws-load-balancer-webhook-service                    ClusterIP   172.20.200.129   <none>        443/TCP                        44m
+kube-system   service/eks-extension-metrics-api                            ClusterIP   172.20.135.141   <none>        443/TCP                        6h22m
+kube-system   service/kube-dns                                             ClusterIP   172.20.0.10      <none>        53/UDP,53/TCP,9153/TCP         6h20m
+kube-system   service/metrics-server                                       ClusterIP   172.20.42.186    <none>        443/TCP                        5h39m
+kube-system   service/monitoring-kube-prometheus-coredns                   ClusterIP   None             <none>        9153/TCP                       5h29m
+kube-system   service/monitoring-kube-prometheus-kube-controller-manager   ClusterIP   None             <none>        10257/TCP                      5h29m
+kube-system   service/monitoring-kube-prometheus-kube-etcd                 ClusterIP   None             <none>        2381/TCP                       5h29m
+kube-system   service/monitoring-kube-prometheus-kube-proxy                ClusterIP   None             <none>        10249/TCP                      5h29m
+kube-system   service/monitoring-kube-prometheus-kube-scheduler            ClusterIP   None             <none>        10259/TCP                      5h29m
+kube-system   service/monitoring-kube-prometheus-kubelet                   ClusterIP   None             <none>        10250/TCP,4194/TCP,10255/TCP   5h28m
+monitoring    service/monitoring-grafana                                   ClusterIP   172.20.106.4     <none>        80/TCP                         5h29m
+monitoring    service/monitoring-kube-prometheus-operator                  ClusterIP   172.20.42.224    <none>        443/TCP                        5h29m
+monitoring    service/monitoring-kube-prometheus-prometheus                ClusterIP   172.20.227.147   <none>        9090/TCP,8080/TCP              5h29m
+monitoring    service/monitoring-kube-state-metrics                        ClusterIP   172.20.181.8     <none>        8080/TCP                       5h29m
+monitoring    service/monitoring-prometheus-node-exporter                  ClusterIP   172.20.185.233   <none>        9100/TCP                       5h29m
+monitoring    service/prometheus-operated                                  ClusterIP   None             <none>        9090/TCP                       5h28m
+
+NAMESPACE   NAME                                                      REFERENCE                        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+default     horizontalpodautoscaler.autoscaling/devops-capstone-app   Deployment/devops-capstone-app   cpu: 1%/50%   2         5         2          5h26m

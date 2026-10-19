@@ -1,0 +1,182 @@
+{
+    "Reservations": [
+        {
+            "ReservationId": "r-0ed94828a029130f0",
+            "OwnerId": "625228299204",
+            "Groups": [],
+            "Instances": [
+                {
+                    "Architecture": "x86_64",
+                    "BlockDeviceMappings": [
+                        {
+                            "DeviceName": "/dev/sda1",
+                            "Ebs": {
+                                "AttachTime": "2026-10-19T08:40:47+00:00",
+                                "DeleteOnTermination": true,
+                                "Status": "attached",
+                                "VolumeId": "vol-0744b0e2accd28daa",
+                                "EbsCardIndex": 0
+                            }
+                        }
+                    ],
+                    "ClientToken": "terraform-20261019084045288900000002",
+                    "EbsOptimized": false,
+                    "EnaSupport": true,
+                    "Hypervisor": "xen",
+                    "IamInstanceProfile": {
+                        "Arn": "arn:aws:iam::625228299204:instance-profile/devops-capstone-jenkins-role",
+                        "Id": "AIPAZDEUCXPCEU3EECGLB"
+                    },
+                    "NetworkInterfaces": [
+                        {
+                            "Association": {
+                                "IpOwnerId": "amazon",
+                                "PublicDnsName": "ec2-3-236-43-151.compute-1.amazonaws.com",
+                                "PublicIp": "3.236.43.151"
+                            },
+                            "Attachment": {
+                                "AttachTime": "2026-10-19T08:40:46+00:00",
+                                "AttachmentId": "eni-attach-09e6c59ab977c65bc",
+                                "DeleteOnTermination": true,
+                                "DeviceIndex": 0,
+                                "Status": "attached",
+                                "NetworkCardIndex": 0
+                            },
+                            "Description": "",
+                            "Groups": [
+                                {
+                                    "GroupId": "sg-069742c84d615a00e",
+                                    "GroupName": "devops-capstone-jenkins-20261019084038338600000001"
+                                }
+                            ],
+                            "Ipv6Addresses": [],
+                            "MacAddress": "02:ff:ed:a2:41:7b",
+                            "NetworkInterfaceId": "eni-0f69f69cc13aedbd4",
+                            "OwnerId": "625228299204",
+                            "PrivateDnsName": "ip-10-20-1-90.ec2.internal",
+                            "PrivateIpAddress": "10.20.1.90",
+                            "PrivateIpAddresses": [
+                                {
+                                    "Association": {
+                                        "IpOwnerId": "amazon",
+                                        "PublicDnsName": "ec2-3-236-43-151.compute-1.amazonaws.com",
+                                        "PublicIp": "3.236.43.151"
+                                    },
+                                    "Primary": true,
+                                    "PrivateDnsName": "ip-10-20-1-90.ec2.internal",
+                                    "PrivateIpAddress": "10.20.1.90"
+                                }
+                            ],
+                            "SourceDestCheck": true,
+                            "Status": "in-use",
+                            "SubnetId": "subnet-0e63a769e506457cc",
+                            "VpcId": "vpc-0344825c3b321c83d",
+                            "InterfaceType": "interface",
+                            "Operator": {
+                                "Managed": false
+                            }
+                        }
+                    ],
+                    "RootDeviceName": "/dev/sda1",
+                    "RootDeviceType": "ebs",
+                    "SecurityGroups": [
+                        {
+                            "GroupId": "sg-069742c84d615a00e",
+                            "GroupName": "devops-capstone-jenkins-20261019084038338600000001"
+                        }
+                    ],
+                    "SourceDestCheck": true,
+                    "Tags": [
+                        {
+                            "Key": "Project",
+                            "Value": "devops-capstone"
+                        },
+                        {
+                            "Key": "ManagedBy",
+                            "Value": "Terraform"
+                        },
+                        {
+                            "Key": "Name",
+                            "Value": "devops-capstone-jenkins"
+                        },
+                        {
+                            "Key": "Role",
+                            "Value": "CI-CD"
+                        }
+                    ],
+                    "VirtualizationType": "hvm",
+                    "CpuOptions": {
+                        "CoreCount": 1,
+                        "ThreadsPerCore": 2
+                    },
+                    "CapacityReservationSpecification": {
+                        "CapacityReservationPreference": "open"
+                    },
+                    "HibernationOptions": {
+                        "Configured": false
+                    },
+                    "MetadataOptions": {
+                        "State": "applied",
+                        "HttpTokens": "required",
+                        "HttpPutResponseHopLimit": 2,
+                        "HttpEndpoint": "enabled",
+                        "HttpProtocolIpv6": "disabled",
+                        "InstanceMetadataTags": "disabled"
+                    },
+                    "EnclaveOptions": {
+                        "Enabled": false
+                    },
+                    "BootMode": "uefi-preferred",
+                    "PlatformDetails": "Linux/UNIX",
+                    "UsageOperation": "RunInstances",
+                    "UsageOperationUpdateTime": "2026-10-19T08:40:46+00:00",
+                    "PrivateDnsNameOptions": {
+                        "HostnameType": "ip-name",
+                        "EnableResourceNameDnsARecord": false,
+                        "EnableResourceNameDnsAAAARecord": false
+                    },
+                    "MaintenanceOptions": {
+                        "AutoRecovery": "default",
+                        "RebootMigration": "default"
+                    },
+                    "CurrentInstanceBootMode": "uefi",
+                    "NetworkPerformanceOptions": {
+                        "BandwidthWeighting": "default"
+                    },
+                    "Operator": {
+                        "Managed": false,
+                        "HiddenByDefault": false
+                    },
+                    "SecondaryInterfaces": [],
+                    "InstanceId": "i-0e280ad0bac3105fa",
+                    "ImageId": "ami-02a9cdd4e98bc3c78",
+                    "State": {
+                        "Code": 16,
+                        "Name": "running"
+                    },
+                    "PrivateDnsName": "ip-10-20-1-90.ec2.internal",
+                    "PublicDnsName": "ec2-3-236-43-151.compute-1.amazonaws.com",
+                    "StateTransitionReason": "",
+                    "KeyName": "capstone",
+                    "AmiLaunchIndex": 0,
+                    "ProductCodes": [],
+                    "InstanceType": "m7i-flex.large",
+                    "LaunchTime": "2026-10-19T08:40:46+00:00",
+                    "Placement": {
+                        "AvailabilityZoneId": "use1-az1",
+                        "GroupName": "",
+                        "Tenancy": "default",
+                        "AvailabilityZone": "us-east-1a"
+                    },
+                    "Monitoring": {
+                        "State": "disabled"
+                    },
+                    "SubnetId": "subnet-0e63a769e506457cc",
+                    "VpcId": "vpc-0344825c3b321c83d",
+                    "PrivateIpAddress": "10.20.1.90",
+                    "PublicIpAddress": "3.236.43.151"
+                }
+            ]
+        }
+    ]
+}

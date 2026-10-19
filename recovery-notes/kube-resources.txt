@@ -1,0 +1,77 @@
+NAMESPACE     NAME                                                       READY   STATUS    RESTARTS   AGE
+default       pod/devops-capstone-app-65f6bf5b77-g5krw                   1/1     Running   0          6m23s
+default       pod/devops-capstone-app-65f6bf5b77-md98s                   1/1     Running   0          6m10s
+kube-system   pod/aws-load-balancer-controller-699f865696-b9wxv          1/1     Running   0          43m
+kube-system   pod/aws-load-balancer-controller-699f865696-v5m86          1/1     Running   0          43m
+kube-system   pod/aws-node-4lct7                                         2/2     Running   0          6h17m
+kube-system   pod/aws-node-qz5dq                                         2/2     Running   0          6h17m
+kube-system   pod/coredns-57887d9b4b-5ntmj                               1/1     Running   0          6h20m
+kube-system   pod/coredns-57887d9b4b-5wpcj                               1/1     Running   0          6h20m
+kube-system   pod/kube-proxy-mjczr                                       1/1     Running   0          6h17m
+kube-system   pod/kube-proxy-rgklz                                       1/1     Running   0          6h17m
+kube-system   pod/metrics-server-794dd65494-87vgk                        1/1     Running   0          5h39m
+monitoring    pod/monitoring-grafana-86bd5cfdf6-qdphh                    3/3     Running   0          24m
+monitoring    pod/monitoring-kube-prometheus-operator-6dd47994f9-kgbcj   1/1     Running   0          5h28m
+monitoring    pod/monitoring-kube-state-metrics-6d8ffd8867-rccvf         1/1     Running   0          5h28m
+monitoring    pod/monitoring-prometheus-node-exporter-8jh2p              1/1     Running   0          5h28m
+monitoring    pod/monitoring-prometheus-node-exporter-htmt4              1/1     Running   0          5h28m
+monitoring    pod/prometheus-monitoring-kube-prometheus-prometheus-0     2/2     Running   0          5h28m
+
+NAMESPACE     NAME                                                         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                        AGE
+default       service/devops-capstone-app                                  ClusterIP   172.20.43.54     <none>        80/TCP                         5h48m
+default       service/kubernetes                                           ClusterIP   172.20.0.1       <none>        443/TCP                        6h22m
+kube-system   service/aws-load-balancer-webhook-service                    ClusterIP   172.20.200.129   <none>        443/TCP                        43m
+kube-system   service/eks-extension-metrics-api                            ClusterIP   172.20.135.141   <none>        443/TCP                        6h21m
+kube-system   service/kube-dns                                             ClusterIP   172.20.0.10      <none>        53/UDP,53/TCP,9153/TCP         6h20m
+kube-system   service/metrics-server                                       ClusterIP   172.20.42.186    <none>        443/TCP                        5h39m
+kube-system   service/monitoring-kube-prometheus-coredns                   ClusterIP   None             <none>        9153/TCP                       5h28m
+kube-system   service/monitoring-kube-prometheus-kube-controller-manager   ClusterIP   None             <none>        10257/TCP                      5h28m
+kube-system   service/monitoring-kube-prometheus-kube-etcd                 ClusterIP   None             <none>        2381/TCP                       5h28m
+kube-system   service/monitoring-kube-prometheus-kube-proxy                ClusterIP   None             <none>        10249/TCP                      5h28m
+kube-system   service/monitoring-kube-prometheus-kube-scheduler            ClusterIP   None             <none>        10259/TCP                      5h28m
+kube-system   service/monitoring-kube-prometheus-kubelet                   ClusterIP   None             <none>        10250/TCP,4194/TCP,10255/TCP   5h28m
+monitoring    service/monitoring-grafana                                   ClusterIP   172.20.106.4     <none>        80/TCP                         5h28m
+monitoring    service/monitoring-kube-prometheus-operator                  ClusterIP   172.20.42.224    <none>        443/TCP                        5h28m
+monitoring    service/monitoring-kube-prometheus-prometheus                ClusterIP   172.20.227.147   <none>        9090/TCP,8080/TCP              5h28m
+monitoring    service/monitoring-kube-state-metrics                        ClusterIP   172.20.181.8     <none>        8080/TCP                       5h28m
+monitoring    service/monitoring-prometheus-node-exporter                  ClusterIP   172.20.185.233   <none>        9100/TCP                       5h28m
+monitoring    service/prometheus-operated                                  ClusterIP   None             <none>        9090/TCP                       5h28m
+
+NAMESPACE     NAME                                                 DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+kube-system   daemonset.apps/aws-node                              2         2         2       2            2           <none>                   6h20m
+kube-system   daemonset.apps/kube-proxy                            2         2         2       2            2           <none>                   6h20m
+monitoring    daemonset.apps/monitoring-prometheus-node-exporter   2         2         2       2            2           kubernetes.io/os=linux   5h28m
+
+NAMESPACE     NAME                                                  READY   UP-TO-DATE   AVAILABLE   AGE
+default       deployment.apps/devops-capstone-app                   2/2     2            2           5h49m
+kube-system   deployment.apps/aws-load-balancer-controller          2/2     2            2           43m
+kube-system   deployment.apps/coredns                               2/2     2            2           6h20m
+kube-system   deployment.apps/metrics-server                        1/1     1            1           5h39m
+monitoring    deployment.apps/monitoring-grafana                    1/1     1            1           5h28m
+monitoring    deployment.apps/monitoring-kube-prometheus-operator   1/1     1            1           5h28m
+monitoring    deployment.apps/monitoring-kube-state-metrics         1/1     1            1           5h28m
+
+NAMESPACE     NAME                                                             DESIRED   CURRENT   READY   AGE
+default       replicaset.apps/devops-capstone-app-54c557b688                   0         0         0       3h17m
+default       replicaset.apps/devops-capstone-app-5bfcbdf6d5                   0         0         0       71m
+default       replicaset.apps/devops-capstone-app-65f6bf5b77                   2         2         2       6m25s
+default       replicaset.apps/devops-capstone-app-677765f7dc                   0         0         0       5h41m
+default       replicaset.apps/devops-capstone-app-67f6bbc45d                   0         0         0       73m
+default       replicaset.apps/devops-capstone-app-6988fdc649                   0         0         0       3h21m
+default       replicaset.apps/devops-capstone-app-6f44c46858                   0         0         0       5h23m
+default       replicaset.apps/devops-capstone-app-786d6b77f6                   0         0         0       5h49m
+default       replicaset.apps/devops-capstone-app-7bb5cfbdc5                   0         0         0       4h32m
+default       replicaset.apps/devops-capstone-app-8449f785f                    0         0         0       84m
+kube-system   replicaset.apps/aws-load-balancer-controller-699f865696          2         2         2       43m
+kube-system   replicaset.apps/coredns-57887d9b4b                               2         2         2       6h20m
+kube-system   replicaset.apps/metrics-server-794dd65494                        1         1         1       5h39m
+monitoring    replicaset.apps/monitoring-grafana-86bd5cfdf6                    1         1         1       24m
+monitoring    replicaset.apps/monitoring-grafana-d6444c456                     0         0         0       5h28m
+monitoring    replicaset.apps/monitoring-kube-prometheus-operator-6dd47994f9   1         1         1       5h28m
+monitoring    replicaset.apps/monitoring-kube-state-metrics-6d8ffd8867         1         1         1       5h28m
+
+NAMESPACE    NAME                                                                READY   AGE
+monitoring   statefulset.apps/prometheus-monitoring-kube-prometheus-prometheus   1/1     5h28m
+
+NAMESPACE   NAME                                                      REFERENCE                        TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+default     horizontalpodautoscaler.autoscaling/devops-capstone-app   Deployment/devops-capstone-app   cpu: 1%/50%   2         5         2          5h26m

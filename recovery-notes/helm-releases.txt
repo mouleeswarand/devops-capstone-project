@@ -1,0 +1,3 @@
+NAME                        	NAMESPACE  	REVISION	UPDATED                                	STATUS  	CHART                             	APP VERSION
+aws-load-balancer-controller	kube-system	1       	2026-10-19 06:22:40.040587815 -0400 EDT	deployed	aws-load-balancer-controller-3.6.0	v3.6.0     
+monitoring                  	monitoring 	2       	2026-10-19 06:41:18.449522715 -0400 EDT	deployed	kube-prometheus-stack-92.7.0      	v0.94.1    

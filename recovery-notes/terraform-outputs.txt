@@ -1,0 +1,12 @@
+jenkins_instance_id = "i-0e280ad0bac3105fa"
+jenkins_public_ip = "3.236.43.151"
+jenkins_url = "http://3.236.43.151:8080"
+private_subnet_ids = [
+  "subnet-06e3cd0955378c893",
+  "subnet-0a090a77270bac8f1",
+]
+public_subnet_ids = [
+  "subnet-0e63a769e506457cc",
+  "subnet-0aea482a4e4c089ee",
+]
+vpc_id = "vpc-0344825c3b321c83d"
