@@ -104,7 +104,8 @@ resource "aws_iam_role_policy" "jenkins_tfstate" {
           "s3:GetBucketAcl",
           "s3:GetBucketTagging",
           "s3:GetBucketCORS",
-          "s3:GetBucketWebsite"
+          "s3:GetBucketWebsite",
+          "s3:GetAccelerateConfiguration"
         ]
         Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1"
       },
