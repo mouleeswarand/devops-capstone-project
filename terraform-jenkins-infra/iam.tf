@@ -92,6 +92,31 @@ resource "aws_iam_role_policy" "jenkins_tfstate" {
         Effect   = "Allow"
         Action   = ["s3:GetBucketLocation"]
         Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1"
+      },
+      {
+        Sid    = "ReadTerraformManagedS3Settings"
+        Effect = "Allow"
+        Action = [
+          "s3:GetBucketVersioning",
+          "s3:GetEncryptionConfiguration",
+          "s3:GetBucketPublicAccessBlock"
+        ]
+        Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1"
+      },
+      {
+        Sid      = "ReadJenkinsIamRole"
+        Effect   = "Allow"
+        Action   = ["iam:GetRole"]
+        Resource = "arn:aws:iam::625228299204:role/devops-capstone-jenkins-ec2-role"
+      },
+      {
+        Sid    = "ReadEc2Configuration"
+        Effect = "Allow"
+        Action = [
+          "ec2:DescribeImages",
+          "ec2:DescribeVpcAttribute"
+        ]
+        Resource = "*"
       }
     ]
   })
