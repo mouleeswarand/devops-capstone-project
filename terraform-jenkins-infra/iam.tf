@@ -47,3 +47,52 @@ resource "aws_iam_role_policy_attachment" "jenkins_ssm" {
   role       = aws_iam_role.jenkins.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
+
+resource "aws_iam_role_policy" "jenkins_tfstate" {
+  name = "${var.project_name}-jenkins-tfstate-access"
+  role = aws_iam_role.jenkins.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+
+    Statement = [
+      {
+        Sid      = "ListJenkinsStatePrefix"
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
+        Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1"
+
+        Condition = {
+          StringLike = {
+            "s3:prefix" = ["jenkins/*"]
+          }
+        }
+      },
+      {
+        Sid    = "ReadAndWriteJenkinsState"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject"
+        ]
+        Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1/jenkins/terraform.tfstate"
+      },
+      {
+        Sid    = "ManageJenkinsStateLock"
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject"
+        ]
+        Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1/jenkins/terraform.tfstate.tflock"
+      },
+      {
+        Sid      = "GetJenkinsStateBucketLocation"
+        Effect   = "Allow"
+        Action   = ["s3:GetBucketLocation"]
+        Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1"
+      }
+    ]
+  })
+}
