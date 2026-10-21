@@ -104,9 +104,14 @@ resource "aws_iam_role_policy" "jenkins_tfstate" {
         Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1"
       },
       {
-        Sid      = "ReadJenkinsIamRole"
-        Effect   = "Allow"
-        Action   = ["iam:GetRole"]
+        Sid    = "ReadJenkinsIamRole"
+        Effect = "Allow"
+        Action = [
+          "iam:GetRole",
+          "iam:ListRolePolicies",
+          "iam:GetRolePolicy",
+          "iam:ListAttachedRolePolicies"
+        ]
         Resource = "arn:aws:iam::625228299204:role/devops-capstone-jenkins-ec2-role"
       },
       {
