@@ -105,7 +105,8 @@ resource "aws_iam_role_policy" "jenkins_tfstate" {
         Action = [
           "s3:GetBucketVersioning",
           "s3:GetEncryptionConfiguration",
-          "s3:GetBucketPublicAccessBlock"
+          "s3:GetBucketPublicAccessBlock",
+          "s3:GetBucketPolicy"
         ]
         Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1"
       },
@@ -129,7 +130,13 @@ resource "aws_iam_role_policy" "jenkins_tfstate" {
           "ec2:DescribeInstanceAttribute"
         ]
         Resource = "*"
-      }
+      },
+      {
+        Sid      = "CheckJenkinsStateBucket"
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
+        Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1"
+      },
     ]
   })
 }
