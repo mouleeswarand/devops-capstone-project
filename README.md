@@ -105,7 +105,9 @@ docker --version
 
 ```
 
-## 5. Sprint 1 — create Jenkins EC2 manually
+## 5. Sprint 1 -2 
+
+### create Jenkins EC2 manually
 
 1. In AWS Console, create the Jenkins EC2 instance in the chosen VPC/subnet.
 2. Attach an IAM role with only the permissions required for ECR and EKS deployment.
@@ -371,7 +373,6 @@ free -h
 df -h
 
 ### install dependencies
-
 sudo apt update && sudo apt upgrade -y
 
 ### Install Java
@@ -567,6 +568,7 @@ git push origin main
 
 ### Jenkins Pipeline - Output
 <img width="1611" height="369" alt="image" src="https://github.com/user-attachments/assets/71d0015c-add5-433e-a4a9-54ca24d5bd91" />
+```
 
 # CI is successfully implement manually, We have to do this using Terraform
 
