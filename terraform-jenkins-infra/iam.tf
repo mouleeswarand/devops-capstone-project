@@ -78,6 +78,12 @@ resource "aws_iam_role_policy" "jenkins_tfstate" {
         Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1/jenkins/terraform.tfstate"
       },
       {
+        Sid      = "ReadJenkinsInstanceProfile"
+        Effect   = "Allow"
+        Action   = ["iam:GetInstanceProfile"]
+        Resource = "arn:aws:iam::625228299204:instance-profile/devops-capstone-jenkins-instance-profile"
+      },
+      {
         Sid    = "ManageJenkinsStateLock"
         Effect = "Allow"
         Action = [
