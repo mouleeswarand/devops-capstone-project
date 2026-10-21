@@ -57,16 +57,10 @@ resource "aws_iam_role_policy" "jenkins_tfstate" {
 
     Statement = [
       {
-        Sid      = "ListJenkinsStatePrefix"
+        Sid      = "ListJenkinsStateBucket"
         Effect   = "Allow"
         Action   = ["s3:ListBucket"]
         Resource = "arn:aws:s3:::devops-capstone-jenkins-tfstate-625228299204-us-east-1"
-
-        Condition = {
-          StringLike = {
-            "s3:prefix" = ["jenkins/*"]
-          }
-        }
       },
       {
         Sid    = "ReadAndWriteJenkinsState"
