@@ -125,7 +125,8 @@ resource "aws_iam_role_policy" "jenkins_tfstate" {
         Effect = "Allow"
         Action = [
           "ec2:DescribeImages",
-          "ec2:DescribeVpcAttribute"
+          "ec2:DescribeVpcAttribute",
+          "ec2:DescribeInstanceAttribute"
         ]
         Resource = "*"
       }
