@@ -635,19 +635,22 @@ For the existing remote backend, the project has used an S3 state bucket with en
 
 
 ### Create the Terraform files
-cd ~/devops-capstone-project/terraform
+```bash
+cd ~/devops-capstone-project/terraform/terraform-jenkins-infra
 
 touch providers.tf variables.tf main.tf outputs.tf backend.tf versions.tf jenkins.tf iam.tf network.tf bootstrap.tf
+```
 <img width="598" height="227" alt="image" src="https://github.com/user-attachments/assets/6ec8467a-30b1-480b-bcb6-ea8d4e565e8b" />
 
 
 
 
-### Configure the S3 backend: /home/mouli/project/devops-capstone-project/terraform/backend.tf
-Configure the AWS provider: /home/mouli/project/devops-capstone-project/terraform/providers.tf
-Configure the AWS version: /home/mouli/project/devops-capstone-project/terraform/versions.tf
+### Configure the S3 backend: /home/mouli/project/devops-capstone-project/terraform/terraform-jenkins-infra/backend.tf
+Configure the AWS provider: /home/mouli/project/devops-capstone-project/terraform/terraform-jenkins-infra/providers.tf
+Configure the AWS version: /home/mouli/project/devops-capstone-project/terraform/terraform-jenkins-infra/versions.tf
 <img width="673" height="55" alt="image" src="https://github.com/user-attachments/assets/56a76ec5-49d3-4d75-8eb9-3fe7893e5afd" />
 
+```bash
 terraform fmt
 terraform validate
 terraform plan
@@ -681,14 +684,15 @@ terraform plan
 terraform plan -out=jenkins-plan
 terraform show jenkins-plan
 terraform apply jenkins-plan
-
+```
 <img width="684" height="169" alt="image" src="https://github.com/user-attachments/assets/28f1e708-679f-4a16-a33a-f5fbe3f57f9d" />
 
 ### Access Jenkins URL (http://184.195.178.174:8080/)
+
 <img width="1671" height="731" alt="image" src="https://github.com/user-attachments/assets/e04bb3f6-6c83-41a0-bd54-284bbd62636b" />
 
 ### Configure Jenkins tools through SSM
-
+```bash
 aws ssm start-session \
  --region us-east-1 \
  --target i-0269f659aaec1cfc1
@@ -700,14 +704,16 @@ sudo usermod -aG docker jenkins
 sudo systemctl restart jenkins
 git --version
 docker --version
-
+```
 ### Verify Git and Docker
+```bash
 git --version
 docker --version
 sudo systemctl is-active docker
 sudo -u jenkins -H docker ps
-
+```
 ### Install Terraform
+```bash
 sudo apt-get update && sudo apt-get install -y wget unzip
 cd /tmp
 
@@ -717,15 +723,20 @@ unzip -o terraform_1.16.4_linux_amd64.zip
 sudo install terraform /usr/local/bin/terraform
 
 terraform version
+```
 
 ### Create the Terraform Jenkins pipeline
+```bash
 cd /home/mouli/project/devops-capstone-project
 nano jenkins/Terraform.Jenkinsfile
+```
 
 ### Configure the Jenkins Credentials
+
 <img width="655" height="600" alt="image" src="https://github.com/user-attachments/assets/c08e208a-8c91-438d-b33e-c3fe360fc94a" />
 
 ### Configure the Jenkins job from GitHub
+
 <img width="678" height="778" alt="image" src="https://github.com/user-attachments/assets/07894813-18a9-48b8-8bf4-ed2d39e513ad" />
 
 ### Jenkins output
@@ -734,57 +745,71 @@ nano jenkins/Terraform.Jenkinsfile
 
 ### create the EKS infrastructure
 
+Configure the AWS provider: /home/mouli/project/devops-capstone-project/terraform/providers.tf
+```bash
+cd ~/devops-capstone-project/terraform/
 
-
+touch providers.tf variables.tf main.tf outputs.tf backend.tf versions.tf 
+```
 ### Describe Cluster
+```bash
 aws eks describe-cluster \
   --name devops-capstone-eks \
   --region us-east-1 \
   --query 'cluster.{Name:name,Status:status,Version:version,Endpoint:endpoint}' \
   --output table
+```
 <img width="785" height="229" alt="image" src="https://github.com/user-attachments/assets/f56f404f-0185-4019-9ab2-d2cb2844589c" />
 
 
 ### Node Group
+```bash
 aws eks describe-nodegroup \
   --cluster-name devops-capstone-eks \
   --nodegroup-name devops-capstone-workers \
   --region us-east-1 \
   --query 'nodegroup.{Status:status,DesiredSize:scalingConfig.desiredSize,InstanceTypes:instanceTypes}' \
   --output table
+```
 <img width="893" height="225" alt="image" src="https://github.com/user-attachments/assets/7bc1b28b-9187-43a9-96ed-a0f2670f64b6" />
 
 ### Configure kubectl
+```bash
 aws eks update-kubeconfig \
   --region us-east-1 \
   --name devops-capstone-eks
-
+```
 ### verify the connection
-
+```bash
 kubectl config current-context
 
 kubectl get nodes -o wide
-
+```
 <img width="967" height="112" alt="image" src="https://github.com/user-attachments/assets/56dc675e-4458-4350-984d-24f6db745dc3" />
-
+```bash
 kubectl get pods -A
+```
 <img width="657" height="133" alt="image" src="https://github.com/user-attachments/assets/8d8c514e-bf0d-40aa-abf2-b1f7183b875e" />
 
 ### Deploy the application
+```bash
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
+```
 
 ### verify
+```bash
 kubectl rollout status deployment/devops-capstone-app \
   --namespace default --timeout=180s
 
 kubectl get deployments,pods,services -n default
-
+```
 <img width="864" height="174" alt="image" src="https://github.com/user-attachments/assets/601c50fe-9f77-488b-8945-d85e8d372104" />
 
-### Configure autoscaling (HPA
+### Configure autoscaling (HPA)
 
 ### Metics server installation
+```bash
 aws eks describe-addon-versions \
   --addon-name metrics-server \
   --kubernetes-version 1.35 \
@@ -804,14 +829,17 @@ aws eks describe-addon \
   --region us-east-1 \
   --query 'addon.status' \
   --output text
+```
 
 ### verify Metics-server
+```bash
 kubectl get pods -n kube-system
 kubectl top nodes
-
+```
 <img width="606" height="35" alt="image" src="https://github.com/user-attachments/assets/a207649f-b552-4766-b58d-d3fd414441a5" />
 
 ### Create the HPA
+```bash
 kubectl autoscale deployment devops-capstone-app \
   --namespace default \
   --cpu-percent=70 \
@@ -819,23 +847,26 @@ kubectl autoscale deployment devops-capstone-app \
   --max=4
 
 kubectl get hpa devops-capstone-app
+```
 <img width="845" height="52" alt="image" src="https://github.com/user-attachments/assets/35603db8-fae0-48cd-a701-a06f662e1e62" />
 
 ### Ansible deployment
-
+```bash
 ansible-playbook -i 'local,' \
   -c local \
   ansible/verify-deployment.yml
-
+```
 <img width="1657" height="420" alt="image" src="https://github.com/user-attachments/assets/7a41d511-8acc-4b6b-b68e-7fd9441c7ad6" />
 
 
 ## 7. Sprint 3: Jenkins CI/CD integration with AWS EKS
 
 ### Add the Jenkins IAM role
+```bash
 kubectl edit configmap aws-auth -n kube-system
-
+```
 ###Add the following
+```bash
     - rolearn: arn:aws:iam::625228299204:role/devops-capstone-jenkins-ec2-role
       username: jenkins
       groups:
@@ -843,18 +874,22 @@ kubectl edit configmap aws-auth -n kube-system
         
 kubectl get configmap aws-auth -n kube-system \
   -o jsonpath='{.data.mapRoles}'
+```
 
 ### Apply Jenkins deployment permissions
+```bash
 cd ~/project/devops-capstone-project
 
 kubectl apply -f k8s/rbac/jenkins-deployer-rbac.yaml
 kubectl get role jenkins-deployer -n default
 kubectl get rolebinding jenkins-deployer -n default
+```
 <img width="923" height="362" alt="image" src="https://github.com/user-attachments/assets/855bfb36-e2b9-4a9a-a006-c197e8ae8a6f" />
 
 ### Jenkins-to-EKS access (Run this in your current SSM session)
 
 ### Install AWS CLI 
+```bash
 sudo apt-get update
 sudo apt-get install -y unzip curl
 
@@ -866,9 +901,10 @@ unzip -oq awscliv2.zip
 sudo ./aws/install
 
 aws --version
+```
 
 ### Install kubectl
-
+```bash
 KUBECTL_VERSION="$(curl -fsSL \
   https://dl.k8s.io/release/stable.txt)"
 
@@ -878,19 +914,22 @@ curl -fsSLo /tmp/kubectl \
 sudo install -o root -g root -m 0755 /tmp/kubectl /usr/local/bin/kubectl
 
 kubectl version --client
-
+```
 ### Install Node.js 22 and npm
+```bash
 curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
 sudo apt-get install -y nodejs
-
+```
 ### Versio check
+```bash
 aws --version
 kubectl version --client
 node --version
 npm --version
 docker --version
-
+```
 ### Test the permissions the pipeline actually needs
+```bash
 sudo -u jenkins -H bash -lc '
 echo "=== Deployment access ==="
 kubectl get deployment devops-capstone-app -n default
@@ -913,16 +952,21 @@ aws ecr describe-repositories \
   --repository-names devops-capstone-app \
   --query "repositories[0].repositoryUri" \
   --output text
+```
 ### Verify the rollout
+```bash
 kubectl rollout status deployment/devops-capstone-app --timeout=180s
-
+```
 ### Verify autoscaling
+```bash
 kubectl get hpa devops-capstone-app
-
+```
 ### Test the application health endpoint
+```bash
 kubectl port-forward service/devops-capstone-app 8080:80
 
 curl -i http://localhost:8080/health
+```
 
 <img width="976" height="823" alt="image" src="https://github.com/user-attachments/assets/68f6cb0e-5a5e-4413-9e03-818477305971" />
 
@@ -941,6 +985,7 @@ curl -i http://localhost:8080/health
 - create a dedicated namespace for monitoring
   kubectl create namespace monitoring
 
+```bash
   helm install monitoring prometheus-community/kube-prometheus-stack \
   --namespace monitoring \
   --set prometheus.prometheusSpec.retention=3d \
@@ -950,24 +995,27 @@ curl -i http://localhost:8080/health
   --set grafana.resources.requests.cpu=50m \
   --set grafana.resources.requests.memory=128Mi \
   --set grafana.resources.limits.memory=256Mi
+```
 
 ### Verify the monitoring pods
+```bash
 kubectl get pods -n monitoring
 kubectl get services -n monitoring
-
+```
 <img width="1017" height="309" alt="image" src="https://github.com/user-attachments/assets/d50c74ee-c149-43fd-beb3-3875e31223d4" />
 
 ### Open Grafana (Start port forwarding)
-
+```bash
 kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
 
 http://localhost:3000 (open in browser)
-
+```
 ### Grafana password 
+```bash
 kubectl get secret monitoring-grafana -n monitoring \
   -o jsonpath="{.data.admin-password}" | base64 -d
 echo
-
+```
 <img width="1261" height="808" alt="image" src="https://github.com/user-attachments/assets/99a5f8c3-32ef-4d8a-8076-1d413fab6aa7" />
 
 ### Verify live metrics
@@ -975,11 +1023,13 @@ echo
 <img width="1608" height="868" alt="image" src="https://github.com/user-attachments/assets/039af3ff-6681-43b9-9b5b-b80611a59254" />
 
 ### Check active alerts
+```bash
 kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
-
+```
 <img width="1648" height="868" alt="image" src="https://github.com/user-attachments/assets/2458d0c7-61a7-4645-af6b-c1dcc6ddfc8a" />
 
 ### Create a test alert
+```bash
 cat > test-alert.yaml <<'EOF'
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -1004,12 +1054,14 @@ spec:
 EOF
 
 kubectl apply -f test-alert.yaml
-
+```
 <img width="1638" height="460" alt="image" src="https://github.com/user-attachments/assets/8063febb-9c84-4f40-8b9f-ac136d687807" />
 
+```bash
 kubectl delete -f test-alert.yaml
-
+```
 ### email alerts in Alertmanager
+```bash
 kubectl get alertmanagerconfig capstone-email -n monitoring -o yaml
 
 apiVersion: monitoring.coreos.com/v1alpha1
@@ -1062,6 +1114,7 @@ curl -s http://localhost:19093/metrics \
 <img width="1461" height="759" alt="image" src="https://github.com/user-attachments/assets/43be8b0c-09e4-429c-979f-4e989e6f570c" />
 
 kubectl get prometheusrule -n monitoring capstone-email-test
+```
 
 
 What we have accomplished
@@ -1074,7 +1127,7 @@ What we have accomplished
 
 <img width="1629" height="835" alt="image" src="https://github.com/user-attachments/assets/be73785b-ae92-4c3d-95c0-bcd72c5a0087" />
 
-Sprint 4 : final verification
+Sprint 5 : final verification
 
 <img width="926" height="774" alt="image" src="https://github.com/user-attachments/assets/959cd9a5-a461-4bb9-a3e8-11318d06a429" />
 
@@ -1089,23 +1142,26 @@ We'll validate the whole pipeline end-to-end before making any more infrastructu
 5. GitHub: review outstanding Terraform deletions and untracked files without deleting anything blindly.
 
 ###  First checkpoint — Check the application on EKS
+```bash
 cd ~/project/devops-capstone-project
 
 kubectl get deployments,pods,services -A
-
+```
 <img width="1354" height="802" alt="image" src="https://github.com/user-attachments/assets/bf643b5a-0f05-492a-a68d-39281ecceb90" />
 
 ### Checkpoint 2 — Test the application response
-
+```bash
 kubectl port-forward svc/devops-capstone-app 18080:80
 curl -i http://localhost:18080/
-
+```
 <img width="846" height="185" alt="image" src="https://github.com/user-attachments/assets/315d0dcc-ece8-432a-8df1-e07d7e28f2d8" />
 
 ### Checkpoint 3 — Verify Jenkins CI/CD
+
 <img width="1669" height="604" alt="image" src="https://github.com/user-attachments/assets/eb9a29b7-108d-4b1c-87f5-379f4c19ac9b" />
 
 ### Checkpoint 4 - Verify the running application
+
 <img width="960" height="322" alt="image" src="https://github.com/user-attachments/assets/602db734-b0cb-4a25-baaf-84f156cf2102" />
 
 ### 
