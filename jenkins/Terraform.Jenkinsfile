@@ -1,3 +1,4 @@
+```groovy
 pipeline {
     agent any
 
@@ -51,22 +52,21 @@ pipeline {
                               -input=false \
                               -lock-timeout=5m \
                               -out=tfplan
+
                             terraform show -no-color tfplan > tfplan.txt
+
+                            echo "Checking Terraform plan files..."
+                            ls -lh tfplan tfplan.txt
+                            test -s tfplan
+                            test -s tfplan.txt
                         '''
                     }
                 }
 
-                dir('terraform-jenkins-infra') {
-                    sh '''
-                        echo "Checking Terraform plan files..."
-                        ls -lh tfplan tfplan.txt
-                        test -s tfplan
-                        test -s tfplan.txt
-                    '''
-                }
-
                 archiveArtifacts(
-                    archiveArtifacts artifacts: 'terraform-jenkins-infra/tfplan*', fingerprint: true, allowEmptyArchive: false
+                    artifacts: 'terraform-jenkins-infra/tfplan,terraform-jenkins-infra/tfplan.txt',
+                    fingerprint: true,
+                    allowEmptyArchive: false
                 )
             }
         }
@@ -81,3 +81,4 @@ pipeline {
         }
     }
 }
+```
