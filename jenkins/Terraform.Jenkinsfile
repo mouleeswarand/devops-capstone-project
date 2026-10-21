@@ -56,9 +56,17 @@ pipeline {
                     }
                 }
 
+                dir('terraform-jenkins-infra') {
+                    sh '''
+                        echo "Checking Terraform plan files..."
+                        ls -lh tfplan tfplan.txt
+                        test -s tfplan
+                        test -s tfplan.txt
+                    '''
+                }
+
                 archiveArtifacts(
-                    artifacts: 'terraform-jenkins-infra/tfplan.txt',
-                    fingerprint: true
+                    archiveArtifacts artifacts: 'terraform-jenkins-infra/tfplan*', fingerprint: true, allowEmptyArchive: false
                 )
             }
         }
