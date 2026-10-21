@@ -105,7 +105,7 @@ docker --version
 
 ```
 
-## 5. Sprint 1 -2 
+## 5. Sprint 1
 
 ### create Jenkins EC2 manually
 
@@ -354,11 +354,10 @@ We are doing this manually once Jenkins working fine we will create it by using 
 Go to:
 
 EC2 → Instances → Launch instance
-
-| Name | jenkins-vm |
-| AMI | ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20260610 |
-| Instance type | m7i-flex.large |
-| Security Group| devops-capstone-jenkins-role (port 22, 8080(jenkins) - allowed) |
+Name:  jenkins-vm 
+AMI: ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-20260610
+Instance type: m7i-flex.large
+Security Group: devops-capstone-jenkins-role (port 22, 8080(jenkins) - allowed)
 
 ***Connect using SSH***
 ```bash
@@ -541,6 +540,28 @@ pipeline {
                 '''
             }
         }
+
+        stage('Deploy to EKS') {
+            steps {
+                sh '''
+                    AWS_ACCOUNT_ID=$(aws sts get-caller-identity \
+                        --query Account \
+                        --output text)
+
+                    IMAGE_URI=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}
+
+                    kubectl set image \
+                        deployment/devops-capstone-app \
+                        web=${IMAGE_URI} \
+                        --namespace default
+
+                    kubectl rollout status \
+                        deployment/devops-capstone-app \
+                        --namespace default \
+                        --timeout=180s
+                '''
+            }
+        }
     }
 
     post {
@@ -552,8 +573,9 @@ pipeline {
             echo 'CI pipeline failed. Check the Jenkins console output.'
         }
     }
-}
 
+
+}
 
 ### Commit the Jenkinsfile
 git add ./jenkins/Jenkinsfile
@@ -572,77 +594,590 @@ git push origin main
 
 # CI is successfully implement manually, We have to do this using Terraform
 
+## 6. Sprint 2 — Terraform infrastructure
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-**Evidence screenshots**
-- **S1-01:** EC2 instance details showing instance state, instance type and region. Hide account-sensitive details if sharing publicly.
-- **S1-02:** EC2 security-group inbound rules, showing restricted SSH and Jenkins UI access.
-- **S1-03:** Jenkins dashboard after initial setup.
-- **S1-04:** Jenkins Credentials page showing credential *names/IDs only*; never reveal secret values.
-- **S1-05:** Jenkins pipeline job configuration with repository URL and branch.
-
-## 6. Sprint 2 — continuous integration and image publishing
-
-1. Confirm the Jenkins job checks out the correct branch.
-2. Run the application tests.
-3. Build the Docker image and tag it with a build number or commit identifier.
-4. Authenticate to Amazon ECR using a short-lived token.
-5. Push the image to ECR.
-6. Run the job again after a small commit and confirm a new build/image is produced.
-
-Typical validation commands on a machine with AWS CLI and Docker configured:
+Run these commands from the Terraform directory:
 
 ```bash
-aws sts get-caller-identity
-# Confirms the AWS identity used for ECR operations.
+cd ~/project/devops-capstone-project/terraform
+# Moves to the folder containing Terraform configuration.
 
-aws ecr describe-repositories --region us-east-1
-# Lists ECR repositories visible to this identity.
+terraform init
+# Initializes the providers and remote state backend.
 
-aws ecr list-images --repository-name devops-capstone-app --region us-east-1
-# Lists image tags/digests in the application repository.
+terraform fmt -check -recursive
+# Checks formatting without changing files.
+
+terraform validate
+# Checks Terraform configuration syntax and internal consistency.
+
+terraform plan
+# Shows the proposed infrastructure changes without applying them.
+
+terraform workspace show
+# Identify the active Terraform workspace.
+
+terraform state list
+# List resources already recorded in the remote Terraform state.
+
+terraform destory
+# this will destroy the complete resources created using Terraform
 ```
 
-The pipeline should use the repository's actual test and build commands. Do not copy a guessed `npm test` or Docker build command over the working Jenkinsfile without checking `package.json`, the Dockerfile and Jenkinsfile first.
+Review the plan carefully before applying it. Only apply when the resources and costs are understood:
 
-**Evidence screenshots**
-- **S2-01:** Jenkins build stage view showing checkout and test stages successful.
-- **S2-02:** Jenkins console output showing tests passed (hide tokens and credentials).
-- **S2-03:** Docker build and ECR push stages successful.
-- **S2-04:** ECR repository showing the newly pushed image tag.
-- **S2-05:** A second successful build after a new Git commit, proving CI is repeatable.
+```bash
+terraform apply
+# Creates or updates resources after interactive approval.
+```
+
+For the existing remote backend, the project has used an S3 state bucket with encryption, versioning, public-access blocking, and S3 lockfile support. Do not delete the state bucket or run `terraform destroy` as a routine validation step.
+
+
+### Create the Terraform files
+cd ~/devops-capstone-project/terraform
+
+touch providers.tf variables.tf main.tf outputs.tf backend.tf versions.tf jenkins.tf iam.tf network.tf bootstrap.tf
+<img width="598" height="227" alt="image" src="https://github.com/user-attachments/assets/6ec8467a-30b1-480b-bcb6-ea8d4e565e8b" />
+
+
+
+
+### Configure the S3 backend: /home/mouli/project/devops-capstone-project/terraform/backend.tf
+Configure the AWS provider: /home/mouli/project/devops-capstone-project/terraform/providers.tf
+Configure the AWS version: /home/mouli/project/devops-capstone-project/terraform/versions.tf
+<img width="673" height="55" alt="image" src="https://github.com/user-attachments/assets/56a76ec5-49d3-4d75-8eb9-3fe7893e5afd" />
+
+terraform fmt
+terraform validate
+terraform plan
+terraform apply
+
+aws s3api get-bucket-versioning \
+  --bucket devops-capstone-jenkins-tfstate-625228299204-us-east-1
+<img width="826" height="79" alt="image" src="https://github.com/user-attachments/assets/1e1c31e8-3cb5-44d7-bed1-115668fb5867" />
+
+terraform state list
+    data.aws_caller_identity.current
+    aws_s3_bucket.jenkins_tfstate
+    aws_s3_bucket_public_access_block.jenkins_tfstate
+    aws_s3_bucket_server_side_encryption_configuration.jenkins_tfstate
+    aws_s3_bucket_versioning.jenkins_tfstate
+
+Configure variables.tf: /home/mouli/project/devops-capstone-project/variables.tf
+Configure network.tf: /home/mouli/project/devops-capstone-project/network.tf
+Add my IP to terraform.tfvars: /home/mouli/project/devops-capstone-project/terraform.tfvars
+curl -4 https://checkip.amazonaws.com # this will provide the current ipv4 address
+
+Create the IAM role for Jenkins: /home/mouli/project/devops-capstone-project/iam.tf
+Add the Jenkins EC2 configuration: /home/mouli/project/devops-capstone-project/jenkins.tf
+Add outputs: /home/mouli/project/devops-capstone-project/outputs.tf
+
+
+terraform fmt
+terraform validate
+terraform plan
+
+terraform plan -out=jenkins-plan
+terraform show jenkins-plan
+terraform apply jenkins-plan
+
+<img width="684" height="169" alt="image" src="https://github.com/user-attachments/assets/28f1e708-679f-4a16-a33a-f5fbe3f57f9d" />
+
+### Access Jenkins URL (http://184.195.178.174:8080/)
+<img width="1671" height="731" alt="image" src="https://github.com/user-attachments/assets/e04bb3f6-6c83-41a0-bd54-284bbd62636b" />
+
+### Configure Jenkins tools through SSM
+
+aws ssm start-session \
+ --region us-east-1 \
+ --target i-0269f659aaec1cfc1
+
+sudo apt-get update
+sudo apt-get install -y git docker.io unzip curl
+sudo systemctl enable --now docker
+sudo usermod -aG docker jenkins
+sudo systemctl restart jenkins
+git --version
+docker --version
+
+### Verify Git and Docker
+git --version
+docker --version
+sudo systemctl is-active docker
+sudo -u jenkins -H docker ps
+
+### Install Terraform
+sudo apt-get update && sudo apt-get install -y wget unzip
+cd /tmp
+
+wget https://releases.hashicorp.com/terraform/1.16.4/terraform_1.16.4_linux_amd64.zip
+unzip -o terraform_1.16.4_linux_amd64.zip
+
+sudo install terraform /usr/local/bin/terraform
+
+terraform version
+
+### Create the Terraform Jenkins pipeline
+cd /home/mouli/project/devops-capstone-project
+nano jenkins/Terraform.Jenkinsfile
+
+### Configure the Jenkins Credentials
+<img width="655" height="600" alt="image" src="https://github.com/user-attachments/assets/c08e208a-8c91-438d-b33e-c3fe360fc94a" />
+
+### Configure the Jenkins job from GitHub
+<img width="678" height="778" alt="image" src="https://github.com/user-attachments/assets/07894813-18a9-48b8-8bf4-ed2d39e513ad" />
+
+### Jenkins output
+
+<img width="1675" height="595" alt="image" src="https://github.com/user-attachments/assets/f4166229-2bc1-4cfb-8c8c-51ade781644b" />
+
+### create the EKS infrastructure
+
+
+
+### Describe Cluster
+aws eks describe-cluster \
+  --name devops-capstone-eks \
+  --region us-east-1 \
+  --query 'cluster.{Name:name,Status:status,Version:version,Endpoint:endpoint}' \
+  --output table
+<img width="785" height="229" alt="image" src="https://github.com/user-attachments/assets/f56f404f-0185-4019-9ab2-d2cb2844589c" />
+
+
+### Node Group
+aws eks describe-nodegroup \
+  --cluster-name devops-capstone-eks \
+  --nodegroup-name devops-capstone-workers \
+  --region us-east-1 \
+  --query 'nodegroup.{Status:status,DesiredSize:scalingConfig.desiredSize,InstanceTypes:instanceTypes}' \
+  --output table
+<img width="893" height="225" alt="image" src="https://github.com/user-attachments/assets/7bc1b28b-9187-43a9-96ed-a0f2670f64b6" />
+
+### Configure kubectl
+aws eks update-kubeconfig \
+  --region us-east-1 \
+  --name devops-capstone-eks
+
+### verify the connection
+
+kubectl config current-context
+
+kubectl get nodes -o wide
+
+<img width="967" height="112" alt="image" src="https://github.com/user-attachments/assets/56dc675e-4458-4350-984d-24f6db745dc3" />
+
+kubectl get pods -A
+<img width="657" height="133" alt="image" src="https://github.com/user-attachments/assets/8d8c514e-bf0d-40aa-abf2-b1f7183b875e" />
+
+### Deploy the application
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+
+### verify
+kubectl rollout status deployment/devops-capstone-app \
+  --namespace default --timeout=180s
+
+kubectl get deployments,pods,services -n default
+
+<img width="864" height="174" alt="image" src="https://github.com/user-attachments/assets/601c50fe-9f77-488b-8945-d85e8d372104" />
+
+### Configure autoscaling (HPA
+
+### Metics server installation
+aws eks describe-addon-versions \
+  --addon-name metrics-server \
+  --kubernetes-version 1.35 \
+  --region us-east-1 \
+  --query 'addons[0].addonVersions[*].addonVersion' \
+  --output table
+
+aws eks create-addon \
+  --cluster-name devops-capstone-eks \
+  --addon-name metrics-server \
+  --addon-version v0.9.0-eksbuild.13 \
+  --region us-east-1
+
+aws eks describe-addon \
+  --cluster-name devops-capstone-eks \
+  --addon-name metrics-server \
+  --region us-east-1 \
+  --query 'addon.status' \
+  --output text
+
+### verify Metics-server
+kubectl get pods -n kube-system
+kubectl top nodes
+
+<img width="606" height="35" alt="image" src="https://github.com/user-attachments/assets/a207649f-b552-4766-b58d-d3fd414441a5" />
+
+### Create the HPA
+kubectl autoscale deployment devops-capstone-app \
+  --namespace default \
+  --cpu-percent=70 \
+  --min=2 \
+  --max=4
+
+kubectl get hpa devops-capstone-app
+<img width="845" height="52" alt="image" src="https://github.com/user-attachments/assets/35603db8-fae0-48cd-a701-a06f662e1e62" />
+
+### Ansible deployment
+
+ansible-playbook -i 'local,' \
+  -c local \
+  ansible/verify-deployment.yml
+
+<img width="1657" height="420" alt="image" src="https://github.com/user-attachments/assets/7a41d511-8acc-4b6b-b68e-7fd9441c7ad6" />
+
+
+## 7. Sprint 3: Jenkins CI/CD integration with AWS EKS
+
+### Add the Jenkins IAM role
+kubectl edit configmap aws-auth -n kube-system
+
+###Add the following
+    - rolearn: arn:aws:iam::625228299204:role/devops-capstone-jenkins-ec2-role
+      username: jenkins
+      groups:
+        - jenkins-deployer
+        
+kubectl get configmap aws-auth -n kube-system \
+  -o jsonpath='{.data.mapRoles}'
+
+### Apply Jenkins deployment permissions
+cd ~/project/devops-capstone-project
+
+kubectl apply -f k8s/rbac/jenkins-deployer-rbac.yaml
+kubectl get role jenkins-deployer -n default
+kubectl get rolebinding jenkins-deployer -n default
+<img width="923" height="362" alt="image" src="https://github.com/user-attachments/assets/855bfb36-e2b9-4a9a-a006-c197e8ae8a6f" />
+
+### Jenkins-to-EKS access (Run this in your current SSM session)
+
+### Install AWS CLI 
+sudo apt-get update
+sudo apt-get install -y unzip curl
+
+cd /tmp
+curl -fsSLo awscliv2.zip \
+  "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+
+unzip -oq awscliv2.zip
+sudo ./aws/install
+
+aws --version
+
+### Install kubectl
+
+KUBECTL_VERSION="$(curl -fsSL \
+  https://dl.k8s.io/release/stable.txt)"
+
+curl -fsSLo /tmp/kubectl \
+  "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+
+sudo install -o root -g root -m 0755 /tmp/kubectl /usr/local/bin/kubectl
+
+kubectl version --client
+
+### Install Node.js 22 and npm
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+### Versio check
+aws --version
+kubectl version --client
+node --version
+npm --version
+docker --version
+
+### Test the permissions the pipeline actually needs
+sudo -u jenkins -H bash -lc '
+echo "=== Deployment access ==="
+kubectl get deployment devops-capstone-app -n default
+
+echo "=== Pod access ==="
+kubectl get pods -n default
+
+echo "=== HPA access ==="
+kubectl get hpa devops-capstone-app -n default
+
+echo "=== Deployment update permission ==="
+kubectl auth can-i patch deployments -n default
+
+echo "=== Rollout status permission ==="
+kubectl auth can-i get deployments -n default
+
+echo "=== ECR repository access ==="
+aws ecr describe-repositories \
+  --region us-east-1 \
+  --repository-names devops-capstone-app \
+  --query "repositories[0].repositoryUri" \
+  --output text
+### Verify the rollout
+kubectl rollout status deployment/devops-capstone-app --timeout=180s
+
+### Verify autoscaling
+kubectl get hpa devops-capstone-app
+
+### Test the application health endpoint
+kubectl port-forward service/devops-capstone-app 8080:80
+
+curl -i http://localhost:8080/health
+
+<img width="976" height="823" alt="image" src="https://github.com/user-attachments/assets/68f6cb0e-5a5e-4413-9e03-818477305971" />
+
+#### Sprint 3 & 4 is now fully verified and complete.
+- Deployment rollout: Successful
+- Application pods: 2/2 running
+- Health endpoint: HTTP 200 OK
+- HPA: Working — minimum 2, maximum 4 replicas
+- CPU utilization: 1% against a 70% target
+- CI/CD pipeline: Jenkins build successful
+- Ansible: Deployment verification playbook passed earlier
+
+## 8. Sprint 5: Monitoring Setup with Prometheus, Grafana, and Jenkins Alerts
+- Install Helm
+- Install Prometheus and Grafana
+- create a dedicated namespace for monitoring
+  kubectl create namespace monitoring
+
+  helm install monitoring prometheus-community/kube-prometheus-stack \
+  --namespace monitoring \
+  --set prometheus.prometheusSpec.retention=3d \
+  --set prometheus.prometheusSpec.resources.requests.cpu=100m \
+  --set prometheus.prometheusSpec.resources.requests.memory=512Mi \
+  --set prometheus.prometheusSpec.resources.limits.memory=1Gi \
+  --set grafana.resources.requests.cpu=50m \
+  --set grafana.resources.requests.memory=128Mi \
+  --set grafana.resources.limits.memory=256Mi
+
+### Verify the monitoring pods
+kubectl get pods -n monitoring
+kubectl get services -n monitoring
+
+<img width="1017" height="309" alt="image" src="https://github.com/user-attachments/assets/d50c74ee-c149-43fd-beb3-3875e31223d4" />
+
+### Open Grafana (Start port forwarding)
+
+kubectl port-forward -n monitoring svc/monitoring-grafana 3000:80
+
+http://localhost:3000 (open in browser)
+
+### Grafana password 
+kubectl get secret monitoring-grafana -n monitoring \
+  -o jsonpath="{.data.admin-password}" | base64 -d
+echo
+
+<img width="1261" height="808" alt="image" src="https://github.com/user-attachments/assets/99a5f8c3-32ef-4d8a-8076-1d413fab6aa7" />
+
+### Verify live metrics
+
+<img width="1608" height="868" alt="image" src="https://github.com/user-attachments/assets/039af3ff-6681-43b9-9b5b-b80611a59254" />
+
+### Check active alerts
+kubectl port-forward -n monitoring svc/monitoring-kube-prometheus-prometheus 9090:9090
+
+<img width="1648" height="868" alt="image" src="https://github.com/user-attachments/assets/2458d0c7-61a7-4645-af6b-c1dcc6ddfc8a" />
+
+### Create a test alert
+cat > test-alert.yaml <<'EOF'
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: capstone-test-alert
+  namespace: monitoring
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: capstone-test
+      interval: 15s
+      rules:
+        - alert: CapstoneTestAlert
+          expr: vector(1)
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Temporary capstone test alert"
+            description: "Testing Prometheus alert evaluation."
+EOF
+
+kubectl apply -f test-alert.yaml
+
+<img width="1638" height="460" alt="image" src="https://github.com/user-attachments/assets/8063febb-9c84-4f40-8b9f-ac136d687807" />
+
+kubectl delete -f test-alert.yaml
+
+### email alerts in Alertmanager
+kubectl get alertmanagerconfig capstone-email -n monitoring -o yaml
+
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: AlertmanagerConfig
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"monitoring.coreos.com/v1alpha1","kind":"AlertmanagerConfig","metadata":{"annotations":{},"labels":{"release":"monitoring"},"name":"capstone-email","namespace":"monitoring"},"spec":{"receivers":[{"emailConfigs":[{"authPassword":{"key":"password","name":"alertmanager-smtp"},"authUsername":"mouli@tigeredge.org","forceImplicitTLS":true,"from":"mouli@tigeredge.org","requireTLS":true,"sendResolved":true,"smarthost":"ms1.tigeredge.org:465","to":"dmouleeswaran@gmail.com"}],"name":"capstone-email"}],"route":{"groupBy":["alertname"],"groupInterval":"5m","groupWait":"10s","receiver":"capstone-email","repeatInterval":"4h"}}}
+  creationTimestamp: "2026-10-21T18:56:01Z"
+  generation: 2
+  labels:
+    release: monitoring
+  name: capstone-email
+  namespace: monitoring
+  resourceVersion: "19109"
+  uid: 7d2e15d7-bd8b-4e91-8865-0b5df73d0569
+spec:
+  receivers:
+  - emailConfigs:
+    - authPassword:
+        key: password
+        name: alertmanager-smtp
+      authUsername: mouli@tigeredge.org
+      forceImplicitTLS: true
+      from: mouli@tigeredge.org
+      requireTLS: true
+      sendResolved: true
+      smarthost: ms1.tigeredge.org:465
+      to: dmouleeswaran@gmail.com
+    name: capstone-email
+  route:
+    groupBy:
+    - alertname
+    groupInterval: 5m
+    groupWait: 10s
+    receiver: capstone-email
+    repeatInterval: 4h
+
+cd ~/project/devops-capstone-project
+
+kubectl apply -f alertmanager-email-test.yaml
+
+kubectl port-forward -n monitoring \
+  pod/alertmanager-monitoring-kube-prometheus-alertmanager-0 \
+  19093:9093
+
+curl -s http://localhost:19093/metrics \
+  | grep -E '^alertmanager_notifications(_failed)?_total'
+
+<img width="1461" height="759" alt="image" src="https://github.com/user-attachments/assets/43be8b0c-09e4-429c-979f-4e989e6f570c" />
+
+kubectl get prometheusrule -n monitoring capstone-email-test
+
+
+What we have accomplished
+- Deployed Prometheus, Grafana, and Alertmanager on your EKS cluster.
+- Configured email notifications through your SMTP server using a Kubernetes Secret.
+- Successfully received a test alert email.
+- Removed misleading control-plane alerts while preserving scheduler recording rules.
+- Verified all 21 Prometheus targets are healthy
+<img width="963" height="84" alt="image" src="https://github.com/user-attachments/assets/74148830-b3a2-46bd-82d3-340d58621253" />
+
+<img width="1629" height="835" alt="image" src="https://github.com/user-attachments/assets/be73785b-ae92-4c3d-95c0-bcd72c5a0087" />
+
+Sprint 4 : final verification
+
+<img width="926" height="774" alt="image" src="https://github.com/user-attachments/assets/959cd9a5-a461-4bb9-a3e8-11318d06a429" />
+
+
+## 9. Sprint 6: Testing, Documentation, and Final Pipeline Automation
+
+We'll validate the whole pipeline end-to-end before making any more infrastructure changes.
+1. Jenkins CI/CD: verify the pipeline and latest successful build.
+2. Application on EKS: verify the deployment, pods, and service.
+3. Ansible: run the deployment verification playbook.
+4. Monitoring: confirm targets and dashboards remain healthy.
+5. GitHub: review outstanding Terraform deletions and untracked files without deleting anything blindly.
+
+###  First checkpoint — Check the application on EKS
+cd ~/project/devops-capstone-project
+
+kubectl get deployments,pods,services -A
+
+<img width="1354" height="802" alt="image" src="https://github.com/user-attachments/assets/bf643b5a-0f05-492a-a68d-39281ecceb90" />
+
+### Checkpoint 2 — Test the application response
+
+kubectl port-forward svc/devops-capstone-app 18080:80
+curl -i http://localhost:18080/
+
+<img width="846" height="185" alt="image" src="https://github.com/user-attachments/assets/315d0dcc-ece8-432a-8df1-e07d7e28f2d8" />
+
+### Checkpoint 3 — Verify Jenkins CI/CD
+<img width="1669" height="604" alt="image" src="https://github.com/user-attachments/assets/eb9a29b7-108d-4b1c-87f5-379f4c19ac9b" />
+
+### Checkpoint 4 - Verify the running application
+<img width="960" height="322" alt="image" src="https://github.com/user-attachments/assets/602db734-b0cb-4a25-baaf-84f156cf2102" />
+
+### 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Configure the AWS resources: /home/mouli/project/devops-capstone-project/terraform/main.tf
+Configure the AWS outputs: /home/mouli/project/devops-capstone-project/terraform/outputs.tf
+Configure the AWS variables: /home/mouli/project/devops-capstone-project/terraform/variables.tf
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
